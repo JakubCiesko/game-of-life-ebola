@@ -1,8 +1,9 @@
 class DataWriter:
-    def __init__(self, file_path, grid):
+    def __init__(self, file_path, DataCollector):
         self.file_path = file_path
         self.file = open(self.file_path, 'w')
-        self.grid = grid
+        self.DataCollector = DataCollector
+        self.grid = self.DataCollector.grid
 
     def write_heading(self):
         self.file.write('t\tS\tI\tR\tN\n')
