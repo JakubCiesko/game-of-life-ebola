@@ -49,7 +49,7 @@ while game:
     data_collector = DataCollector(grid)
 
     # DataWriter
-    data_writer = DataWriter(game_of_life_settings['file_path'], grid)
+    data_writer = DataWriter(game_of_life_settings['file_path'], data_collector)
     data_writer.write_heading() if ebola_condition else data_writer.write_no_ebola_heading()
 
     # CREATION OF CYCLE TESTER CONDITION OBJECT
