@@ -20,7 +20,7 @@ while game:
         'death_symbol': dead_cell_symbol,
         'replay_key': 'x',
         'time_delay': time_delay,
-        'file_path': 'C:/Users/Asus/Desktop/pandemic.txt',
+        'file_path': './',
         'threshold_values': {'underpopulation': 2,
                             'survive': 4,
                             'overpopulation': 3,
