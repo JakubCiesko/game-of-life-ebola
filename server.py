@@ -95,8 +95,8 @@ async def settings_setter(request):
         data = request.json 
         game_of_life_settings['threshold_values']['initial-number-of-ebola-cells'] = int(data["initialInfectedNumber"])
         game_of_life_settings['threshold_values']['number_of_cells'] = int(data['totalNumberOfCells'])
-        game_of_life_settings['width'] = data['windowWidth'] if 10 <= data['windowWidth'] <= 250 else 100
-        game_of_life_settings['height'] = data['windowHeight'] if 10 <= data['windowHeight'] <= 250 else 100
+        game_of_life_settings['width'] = int(data['windowWidth']) if 10 <= int(data['windowWidth']) <= 250 else 100
+        game_of_life_settings['height'] = int(data['windowHeight']) if 10 <= int(data['windowHeight']) <= 250 else 100
         game_of_life_settings['threshold_values']['underpopulation'] = int(data['underpopulation'])
         game_of_life_settings['threshold_values']['survive'] = int(data['survive'])
         game_of_life_settings['threshold_values']['overpopulation'] = int(data['overpopulation'])
@@ -120,5 +120,5 @@ async def start_simulation_hanlder(request):
     
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
 

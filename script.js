@@ -1,6 +1,8 @@
 
 let canvas = document.getElementById('gameCanvas');
 
+var settings;
+
 resizeCanvasToDisplaySize(canvas);
 
 let ctx = canvas.getContext('2d');
@@ -40,16 +42,36 @@ function createCell(x, y, color, width=2, height=2){
     return cell
 }
 
+
+function parentWidth(elem) {
+    return 0.9*elem.parentElement.clientWidth;
+}
+
+function parentHeight(elem) {
+    return elem.parentElement.clientHeight;
+}
+
 function draw(thisIterationCells) {
     let drawBool = false;
     if (thisIterationCells.length > 0){
-        let canvasWidth = canvas.width;
-        let canvasHeight = canvas.height;
-        resizeCanvasToDisplaySize(canvas);
+        
+        let actualWidth = canvas.width;
+        let actualHeight = canvas.height;
+        let setWidth = settings.windowWidth;
+        let setHeight = settings.windowHeight;
+        let setHeightWidthRatio = setHeight/setWidth; 
+        
+        ctx.canvas.width  = parentWidth(canvas);
+        ctx.canvas.height = setHeightWidthRatio*ctx.canvas.width;
+        
+        let xDisplayRatio = actualWidth/setWidth;
+        let yDisplayRatio = actualHeight/setHeight;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
         thisIterationCells.forEach(cell => {
-            let x = cell.x 
-            let y = cell.y
+            let x = cell.x * xDisplayRatio;
+            let y = cell.y * yDisplayRatio;
             ctx.fillStyle = cell.color;
             ctx.fillRect(x, y, cell.width, cell.height);
         })
@@ -105,9 +127,6 @@ async function createCells(){
 
 
 async function updateField(){
-
-    let canvasWidth = 5
-    let canvasHeight = 4;
     let cellsInfo;
     let response = fetch("/get_cells")
                     .then(async r => {
@@ -122,8 +141,9 @@ async function updateField(){
                         if (cellsInfo.length > 0){
                             CELLS = [];
                             cellsInfo.forEach(cellInfo => {
-                                let x = cellInfo.position[0]*canvasWidth;
-                                let y = cellInfo.position[1]*canvasHeight;
+                                let x = cellInfo.position[0];
+                                let y = cellInfo.position[1];
+
                                 color = cellInfo.ebola? "rgba(255, 99, 132, 1)": "rgba(255, 206, 86, 1)";
                                 CELLS.push(createCell(x, y, color));
                             })
@@ -155,6 +175,8 @@ function getData(){
     let survive =  document.getElementById("survive").value;
     let underpopulation =  document.getElementById("underPopulation").value;
     let overpopulation =  document.getElementById("underPopulation").value;
+    let width = document.getElementById("width").value;
+    let height = document.getElementById("height").value;
 
     let data = {
         initialInfectedNumber: initialInfectedNumber, 
@@ -165,21 +187,21 @@ function getData(){
         survive: survive,
         underpopulation: underpopulation, 
         overpopulation: overpopulation,
-        windowWidth: canvas.width,
-        windowHeight: canvas.height,
+        windowWidth: width,
+        windowHeight: height,
     };
     return data
 }
 
 async function sendSettings(){
-    let dataToSend = getData();
+    settings = getData()
     requestOptions = {
         method: "POST", 
         headers: {
           "Content-Type": "application/json"
          
         },
-        body: JSON.stringify(dataToSend), 
+        body: JSON.stringify(settings), 
       };
     let response = fetch("/set_settings", requestOptions);
     return response

@@ -7,56 +7,69 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="static/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <div class="header">
-                    <h1>Game of Life with Disease</h1>
-                    <p>A cellular automaton where cells contract disease, are infectious, and die.</p>
+        
+        <div class="chart-container shadow p-3 mb-5 bg-white rounded">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="header">
+                        <h1 class="display-1">Game of Life with Disease</h1>
+                        <p class="lead">A cellular automaton where cells contract disease, are infectious, and die.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3 shadow-sm p-3 mb-5 bg-white rounded">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total population</h5>
+                            <p class="card-text"><span id="totalPopulation"></span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                        
+                            <h5 class="card-title">Infectious</h5>
+                            <p class="card-text"><span id="infectious"></span></p>
+                        
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center shadow-sm p-3 mb-5 bg-white rounded">
+                    <canvas id="gameCanvas" width="100" height="100"></canvas>
+                </div>
+                <div class="col-sm-3 shadow-sm p-3 mb-5 bg-white rounded">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Susceptible</h5>
+                            <p class="card-text"><span id="susceptible"></span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Recovered</h5>
+                            <p class="card-text"><span id="recovered"></span></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total population</h5>
-                        <p class="card-text"><span id="totalPopulation"></span></p>
+        <div class="chart-container shadow p-3 mb-5 bg-white rounded">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-12 text-center shadow-sm p-3 mb-5 bg-white rounded">
+                    <canvas id="dataChart" width="200" height="100"></canvas>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                      
-                        <h5 class="card-title">Infectious</h5>
-                        <p class="card-text"><span id="infectious"></span></p>
-                      
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 text-center">
-                <canvas id="gameCanvas" width="100" height="100"></canvas>
-            </div>
-            <div class="col-sm-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Susceptible</h5>
-                        <p class="card-text"><span id="susceptible"></span></p>
-                    </div>
-                  </div>
-                  <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Recovered</h5>
-                        <p class="card-text"><span id="recovered"></span></p>
-                    </div>
-                  </div>
-            </div>
-        </div>
-        <div class="row">
-            
-            <div class="col-md-12">
-                <canvas id="dataChart" width="200" height="100"></canvas>
             </div>
         </div>
         <hr>
@@ -74,8 +87,7 @@
                     </button>
                     </p>
                 <div class="collapse" id="collapseSettings">
-                    <div class="card">
-
+                    <div class="card shadow p-3 mb-5 bg-white rounded">
                         <div class="card-header">
                             <ul class="nav nav-tabs nav-fill flex-column flex-sm-row card-header-tabs">
                             <li class="nav-item">
@@ -104,6 +116,18 @@
                                     </div>
                                     <input id="totalNumberOfCells" type="number" class="form-control" aria-label="Default" aria-describedby="totalNumberOfCellsPrepend" min="10" max="10000" value="1000">
                                 </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="widthPrepend">Width</span>
+                                    </div>
+                                    <input id="width" type="number" class="form-control" aria-label="Default" aria-describedby="widthPrepend" min="10" max="200" value="50">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="heightPrepend">Width</span>
+                                    </div>
+                                    <input id="height" type="number" class="form-control" aria-label="Default" aria-describedby="heightPrepend" min="10" max="200" value="50">
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="rulesTab">
                                 <div class="input-group mb-3">
@@ -129,7 +153,7 @@
 
                                 <div class="input-group mb-3">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="ebolaSwtich">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="ebolaSwtich" checked>
                                         <label class="form-check-label" for="ebolaSwtich">Activate Disease</label>
                                     </div>
                                 </div>
@@ -154,7 +178,8 @@
                 </div>
             </div>
         </div>
-        
+       
+
         <!--    
         <div class="row">
             <div class="col-sm-6">
@@ -204,13 +229,6 @@
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="static/script.js"></script>
 </body>
 </html>
