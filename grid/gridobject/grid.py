@@ -83,12 +83,15 @@ class Grid:
         return number_of_live_neighbors,number_of_dead_neighbors
 
     def get_number_of_live_cells(self):
-        flatten_field = functools.reduce(lambda x,y: x+y,self.field)
+        flatten_field = self.get_flatten_field()
         return len([cell for cell in flatten_field if cell.state])
 
     def get_number_of_ebola_cells(self):
-        flatten_field = functools.reduce(lambda x,y: x+y, self.field)
+        flatten_field = self.get_flatten_field()
         return len([cell for cell in flatten_field if cell.ebola])
 
     def get_number_of_healthy_cells(self):
         return self.get_number_of_live_cells() - self.get_number_of_ebola_cells()
+
+    def get_flatten_field(self):
+        return functools.reduce(lambda x,y: x+y, self.field)

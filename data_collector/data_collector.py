@@ -21,13 +21,13 @@ class DataCollector:
         self.cycle_number = grid.cycle_number
 
     def get_data(self):
-        return self.living_cells,self.healthy_cells,self.sick_cells
+        return self.living_cells, self.healthy_cells, self.sick_cells
 
     def get_SIR(self):
-        return self.healthy_cells, self.sick_cells, self.population - self.healthy_cells - self.sick_cells
+        return self.cycle_number, self.healthy_cells, self.sick_cells, self.population - self.healthy_cells - self.sick_cells, self.living_cells
 
     def get_formatted_SIR_string(self):
-        s,i,r = self.get_SIR()
+        _, s,i,r, population = self.get_SIR()
         return f'{self.cycle_number}\t{s}\t{i}\t{r}\t{self.population}\n'
 
     def get_formatted_data_string(self):
