@@ -73,7 +73,7 @@ function draw(thisIterationCells) {
             let x = cell.x * xDisplayRatio;
             let y = cell.y * yDisplayRatio;
             ctx.fillStyle = cell.color;
-            ctx.fillRect(x, y, cell.width, cell.height);
+            ctx.fillRect(x, y, xDisplayRatio, yDisplayRatio);
         })
         drawBool = true;
     }
@@ -294,7 +294,8 @@ function renderChart() {
             //borderColor: 'rgba(75, 192, 192, 1)',
             //borderWidth: 1,
             data: i,
-        }]
+        } 
+        ]
         },
         options: {
         responsive: true,
