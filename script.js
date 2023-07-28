@@ -258,9 +258,16 @@ async function updateNumbers(){
             graphData.adjacency.push(data.graph_data);
             timeT.max = graphData.adjacency.length-1;
             timeT.value = graphData.adjacency.length-1;
+            getCycleNumber(timeT.value);
         });
     
     return data;
+}
+
+function getCycleNumber(){
+    let timeT = document.getElementById("timeT");
+    let realTime = document.getElementById("timeReal");
+    realTime.textContent =  graphData.time[timeT.value];
 }
 
 function renderChart() {

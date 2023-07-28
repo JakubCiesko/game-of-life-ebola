@@ -229,9 +229,13 @@
                         <div class="col-md-12">
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                <span class="input-group-text" id="timeTPrepend">Time T</span>
+                                    <span class="input-group-text" id="timeTPrepend">Cycle number</span>
                                 </div>
-                                <input id="timeT" type="number" class="form-control" aria-label="Default" aria-describedby="timeTPrepend" min="0">
+                                <input id="timeT" type="number" class="form-control" aria-label="Default" aria-describedby="timeTPrepend" min="0" onchange="getCycleNumber()">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Actual cycle number:</span>
+                                    <span class="input-group-text" id="timeReal"></span>
+                                </div>
                             </div>
                         </div>
                     </div>

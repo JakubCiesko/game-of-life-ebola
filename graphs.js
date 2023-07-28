@@ -222,3 +222,24 @@ css: {
 
 
 */
+
+
+function calculateMaximalCcn(cy){
+    let ccn = cy.elements().closenessCentralityNormalized({ /* my options */ });
+    maxCcn = 0;
+    let maxNodeId;
+    cy.nodes().forEach( n => {
+        n.data({
+            ccn: ccn.closeness( n )
+          });
+        let nodeInfo = n.data();
+        let nodeCcn = nodeInfo.ccn;
+    if (nodeCcn > maxCcn){
+        maxNodeId = nodeInfo.id;
+        maxCcn = nodeCcn;
+    }
+    });
+
+    return {ccn: maxCcn, nodeId: maxNodeId};
+    
+}
