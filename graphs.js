@@ -145,21 +145,21 @@ function displayGraphAtTimeT(timeT, graph_data, layout="breadthfirst"){
     }).run();
     let sickIds = getSickIds(nodesIds, adj);
     changeNodesColor(cy, sickIds, "rgba(255, 99, 132, 1)");
-    graphContainer.classList.toggle("d-none");
-    toggleContainerOpacity();
+    //graphContainer.classList.toggle("d-none");
+    //toggleContainerOpacity();
     return cy; 
 }
 
 
 function displayGraph(){
     let timeT = Number(document.getElementById("timeT").value);
-    displayGraphAtTimeT(timeT, graphData);
+    cy = displayGraphAtTimeT(timeT, graphData);
 }
 
 function hideGraph(){
     cy = null;
-    graphContainer.classList.toggle("d-none");
-    toggleContainerOpacity();
+    //graphContainer.classList.toggle("d-none");
+    //toggleContainerOpacity();
 
 }
 
