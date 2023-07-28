@@ -44,9 +44,10 @@ async def returnsomething(request):
     reply = response.html(index_site)
     game_id = request.cookies.get("game_id")
     if game_id:
-        game, task = GAMES[game_id]
-        task.cancel()
-        del game
+        if game_id in GAMES:
+            game, task = GAMES[game_id]
+            task.cancel()
+            del game
         reply.delete_cookie("game_id")
     return reply
 
@@ -74,6 +75,8 @@ async def get_stats_handler(request):
         game, task = GAMES[game_id]
         data_collector = game.get_data_collector()
         stats = data_collector.get_SIR()
+        graph_data = data_collector.get_graph_data()
+        stats = {"stats": stats, "graph_data":graph_data}
         reply = response.json(stats)
         if game.finished:
             task.cancel()

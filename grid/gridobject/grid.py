@@ -80,7 +80,13 @@ class Grid:
         neighbors_states = [self.get_value(cell_position).state for cell_position in neighbors_positions]
         number_of_dead_neighbors = neighbors_states.count(False)
         number_of_live_neighbors = neighbors_states.count(True)
-        return number_of_live_neighbors,number_of_dead_neighbors
+        cell = self.get_value(cell_position)
+        neighbors = [self.get_value(cell_position) for cell_position in neighbors_positions]
+        live_neighbors = [(neighbor.id, neighbor.ebola) for neighbor in neighbors if neighbor.state]
+        unique_values = list(set(live_neighbors))
+        cell.stack.extend(unique_values)
+        cell.stack = list(set(cell.stack))
+        return number_of_live_neighbors, number_of_dead_neighbors
 
     def get_number_of_live_cells(self):
         flatten_field = self.get_flatten_field()
@@ -95,3 +101,10 @@ class Grid:
 
     def get_flatten_field(self):
         return functools.reduce(lambda x,y: x+y, self.field)
+
+    def get_all_live_cells(self):
+        return [self.get_value((x, y)) for x in range(len(self.field)) for y in range(len(self.field[x])) if self.get_value((x, y)).state]
+
+    def get_graph_data(self):
+        this_cycle_live_cells = self.get_all_live_cells()
+        return {cell.id: cell.stack for cell in this_cycle_live_cells}

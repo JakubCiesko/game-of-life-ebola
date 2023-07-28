@@ -32,3 +32,6 @@ class DataCollector:
 
     def get_formatted_data_string(self):
         return f'{self.cycle_number}\t{self.living_cells}\t{self.dead}\t{self.dead_cummulation}\t{self.population}\n'
+    
+    def get_graph_data(self):
+        return self.grid.get_graph_data()

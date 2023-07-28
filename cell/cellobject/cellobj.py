@@ -8,6 +8,8 @@ class Cell:
         self.position = position
         self.ebola = False
         self.ebola_iteration_counter = 0
+        self.stack = list()
+        self.id = id(self)
 
     def get_state(self):
         """

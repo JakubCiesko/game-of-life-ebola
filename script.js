@@ -11,7 +11,8 @@ let ctx = canvas.getContext('2d');
 let CELLS = [];
 
 let incomingDataChart;
-let chartData = {time: [], s: [], i: [], r: []}; 
+let chartData = {time: [], s: [], i: [], r: []};
+let graphData = {time: [], adjacency: []}
 let updateBool = true;
 
 function resizeCanvasToDisplaySize(canvas) {
@@ -233,6 +234,7 @@ async function updateNumbers(){
     let infectious = document.getElementById("infectious");
     let recovered = document.getElementById("recovered");
     let population = document.getElementById("totalPopulation");
+    let timeT = document.getElementById("timeT");
     let jsonResponse;
     await fetch("/get_stats")
         .then(async response => {
@@ -243,6 +245,7 @@ async function updateNumbers(){
                 return;
             }
             data = jsonResponse;
+            jsonResponse = jsonResponse.stats;
             susceptible.textContent = jsonResponse[1];
             infectious.textContent = jsonResponse[2];
             recovered.textContent = jsonResponse[3];
@@ -251,6 +254,10 @@ async function updateNumbers(){
             chartData.i.push(jsonResponse[2]);
             chartData.r.push(jsonResponse[3]);
             chartData.s.push(jsonResponse[1]);
+            graphData.time.push(jsonResponse[0]);
+            graphData.adjacency.push(data.graph_data);
+            timeT.max = graphData.adjacency.length-1;
+            timeT.value = graphData.adjacency.length-1;
         });
     
     return data;

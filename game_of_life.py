@@ -62,6 +62,8 @@ while game:
         print(grid)
         # Collecting Data
         data_collector.update_data()
+        print(grid.get_all_live_cells())
+        print(data_collector.get_graph_data())
         # Formatting Data
         data_string = data_collector.get_formatted_SIR_string() if ebola_condition \
             else data_collector.get_formatted_data_string()
