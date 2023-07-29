@@ -13,7 +13,6 @@ let CELLS = [];
 let incomingDataChart;
 let chartData = {time: [], s: [], i: [], r: []};
 let graphData = {time: [], adjacency: []}
-let updateBool = true;
 
 function resizeCanvasToDisplaySize(canvas) {
     // look up the size the canvas is being displayed
@@ -154,17 +153,36 @@ async function updateField(){
     return;
 } 
 
+
+async function queryTaskStatus(){
+    updateField().then(updateNumbers).then(x => incomingDataChart.update())
+}
+
+async function checkTaskCompletion(){
+    let response = fetch("/check_task_completion")
+                    .then(async r => {
+                        let jsonMessage = await r.json()
+                        if (!r.ok){
+                            queryTaskStatus();
+                            console.error(jsonMessage);
+                            clearInterval(updateInterval);
+                            return;
+                        }
+                    }).catch();
+    return;
+}
+
 // Function to update the game state (you can handle player movement and other updates here)
 async function update() {
     
-    updateField().then(updateNumbers).then(x => incomingDataChart.update());
+    queryTaskStatus().then(checkTaskCompletion).catch(console.error);
     
 }
 
-async function startSimluation(){
+async function startSimulation(){
     chartData = {time: [], s: [], i: [], r: []};
     renderChart();
-    fetch("/start_simluation");
+    fetch("/start_simulation");
 }
 
 function getData(){
@@ -211,7 +229,6 @@ async function sendSettings(){
 
 var updateInterval;
 async function simulate(){
-    updateBool = true;
     cells = [];
     sendSettings()
         .then(async r => {
@@ -221,9 +238,8 @@ async function simulate(){
                 return ;
             }
         })
-        .then(startSimluation)
+        .then(startSimulation)
         .then(renderChart);
-        //.then(update);
         updateInterval = setInterval(update, 500);
 
 }
@@ -241,7 +257,7 @@ async function updateNumbers(){
             jsonResponse = await response.json();
             if (!response.ok){
                 console.error(jsonResponse);
-                //updateBool=false;
+                clearInterval(updateInterval);
                 return;
             }
             data = jsonResponse;
@@ -260,7 +276,7 @@ async function updateNumbers(){
             timeT.value = graphData.adjacency.length-1;
             getCycleNumber(timeT.value);
         });
-    
+    incomingDataChart.update();
     return data;
 }
 
@@ -291,22 +307,16 @@ function renderChart() {
         datasets: [{
             label: 'Susceptible',
             backgroundColor: 'rgba(255, 206, 86, 1)',
-            //borderColor: 'rgba(75, 192, 192, 1)',
-            //borderWidth: 1,
             data: s,
         },
         {
             label: 'Recovered',
             backgroundColor: 'rgba(54, 162, 235, 1)',
-            //borderColor: 'rgba(75, 192, 192, 1)',
-            //borderWidth: 1,
             data: r,
         },
         {
             label: 'Infectious',
             backgroundColor: 'rgba(255, 99, 132, 1)',
-            //borderColor: 'rgba(75, 192, 192, 1)',
-            //borderWidth: 1,
             data: i,
         } 
         ]

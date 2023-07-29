@@ -1,7 +1,5 @@
 from game import Game
-
 import asyncio
-
 from sanic import Sanic
 from sanic import request, response 
 
@@ -33,13 +31,14 @@ game_of_life_settings = {
         'height': 100
     }
 
+
 async def load_content(file_name):
     with open(file_name, 'r', encoding='utf-8') as input_file:
         return input_file.read()
 
 
 @app.route("/")
-async def returnsomething(request):
+async def index_handler(request):
     index_site = await load_content("index.html")
     reply = response.html(index_site)
     game_id = request.cookies.get("game_id")
@@ -47,7 +46,7 @@ async def returnsomething(request):
         if game_id in GAMES:
             game, task = GAMES[game_id]
             task.cancel()
-            del game
+            del GAMES[game_id]
         reply.delete_cookie("game_id")
     return reply
 
@@ -56,40 +55,51 @@ async def returnsomething(request):
 async def get_cells_handler(request):
     game_id = request.cookies.get("game_id")
     reply = response.json({"error_message": "No simulation started"}, status=400)
-    if game_id:
+    if game_id and game_id in GAMES:
         game, task = GAMES[game_id]
         cells_coordinates = game.get_alive_cells_coordinates()
-        reply =  response.json(cells_coordinates)
+        reply = response.json(cells_coordinates)
+    return reply
+
+
+@app.route("/check_task_completion")
+async def task_completion_handler(request):
+    game_id = request.cookies.get("game_id")
+    task_status = "running or nonexistent"
+    status = 200
+    if game_id and game_id in GAMES:
+        game, task = GAMES[game_id]
+        task_status = "not finished"
         if game.finished:
             task.cancel()
-            reply.delete_cookie("game_id")
-            del game 
+            del GAMES[game_id]
+            task_status = "terminated"
+            status = 400
+    reply = response.json({"task": task_status}, status=status)
+    if task_status == "terminated":
+        reply.cookies["game_id"] = None
     return reply
-    
 
 @app.route("/get_stats")
 async def get_stats_handler(request):
     reply = response.json({"error_message": "No simulation started"}, status=400)
     game_id = request.cookies.get("game_id")
-    if game_id:
-        game, task = GAMES[game_id]
-        data_collector = game.get_data_collector()
-        stats = data_collector.get_SIR()
-        graph_data = data_collector.get_graph_data()
-        stats = {"stats": stats, "graph_data":graph_data}
-        reply = response.json(stats)
-        if game.finished:
-            task.cancel()
-            reply.delete_cookie("game_id")
-            del game 
+    if game_id and game_id in GAMES:
+            game, task = GAMES[game_id]
+            data_collector = game.get_data_collector()
+            stats = data_collector.get_SIR()
+            graph_data = data_collector.get_graph_data()
+            stats = {"stats": stats, "graph_data": graph_data}
+            reply = response.json(stats)
     return reply
 
-async def create_cookies(sanic_response, cookie_name: str, cookie_value, cookie_age = 36000, httponly = True):
-    sanic_response.add_cookie(cookie_name, cookie_value, max_age=cookie_age, httponly=httponly)
+async def create_cookies(sanic_response, cookie_name: str, cookie_value, cookie_age = 3600, httponly = True):
+    #sanic_response.add_cookie(cookie_name, cookie_value, max_age=cookie_age, httponly=httponly)
     sanic_response.cookies[cookie_name] = cookie_value        # user_task.add_cookie("task_id", task_id)
     sanic_response.cookies[cookie_name].max_age = cookie_age  # user_task.cookies.get_cookie("task_id").max_age = 36000
     sanic_response.cookies[cookie_name].httponly = httponly   # user_task.cookies.get_cookie("task_id").httponly = True
     return sanic_response
+
 
 
 @app.route("/set_settings", methods=["POST"])
@@ -109,16 +119,16 @@ async def settings_setter(request):
     return response.json(data)
 
 
-@app.route("/start_simluation")
+@app.route("/start_simulation")
 async def start_simulation_hanlder(request):
-    game_id = f"{len(GAMES)}"
     game = Game()
     game.set_settings(game_of_life_settings)
     game.create_game()
     task = asyncio.create_task(asyncio.to_thread(game.start_game))
+    game_id = game.game_id
     GAMES[game_id] = (game, task)
-    user_task =  response.json({"game_id": game_id})
-    user_task = await create_cookies(user_task, cookie_name="game_id", cookie_value=game_id)
+    user_task = response.json({"game_id": game_id})
+    user_task = await create_cookies(user_task, cookie_name="game_id", cookie_value=game_id, httponly=True)
     return user_task
     
 
