@@ -24,7 +24,11 @@ class DataCollector:
         return self.living_cells, self.healthy_cells, self.sick_cells
 
     def get_SIR(self):
-        return self.cycle_number, self.healthy_cells, self.sick_cells, self.population - self.healthy_cells - self.sick_cells, self.living_cells
+        recovered = self.population - self.healthy_cells - self.sick_cells
+        cn, hc, sc = self.cycle_number, self.healthy_cells, self.sick_cells
+        r, lc, d,  = recovered, self.living_cells, self.dead
+        dc, p = self.dead_cummulation, self.population
+        return cn, hc, sc, r, lc, d, dc, p
 
     def get_formatted_SIR_string(self):
         _, s,i,r, population = self.get_SIR()

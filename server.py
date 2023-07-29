@@ -80,6 +80,7 @@ async def task_completion_handler(request):
         reply.cookies["game_id"] = None
     return reply
 
+
 @app.route("/get_stats")
 async def get_stats_handler(request):
     reply = response.json({"error_message": "No simulation started"}, status=400)
@@ -93,13 +94,13 @@ async def get_stats_handler(request):
             reply = response.json(stats)
     return reply
 
+
 async def create_cookies(sanic_response, cookie_name: str, cookie_value, cookie_age = 3600, httponly = True):
     #sanic_response.add_cookie(cookie_name, cookie_value, max_age=cookie_age, httponly=httponly)
     sanic_response.cookies[cookie_name] = cookie_value        # user_task.add_cookie("task_id", task_id)
     sanic_response.cookies[cookie_name].max_age = cookie_age  # user_task.cookies.get_cookie("task_id").max_age = 36000
     sanic_response.cookies[cookie_name].httponly = httponly   # user_task.cookies.get_cookie("task_id").httponly = True
     return sanic_response
-
 
 
 @app.route("/set_settings", methods=["POST"])

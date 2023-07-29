@@ -1,5 +1,5 @@
 from grid.gridobject.grid import Grid
-from grid.gridfunctions.gridfn  import generate_game_field
+from grid.gridfunctions.gridfn  import generate_game_field, generate_game_field_with_givenN
 from cell.cellobject.cellobj import Cell
 from rules.rulesobject.rules import Rules, EndGameTester
 from data_collector.data_collector import DataCollector
@@ -57,14 +57,16 @@ class Game:
         self._grid = grid 
     
     def create_game(self):
-        self.ebola_condition = True 
+
         game_of_life_settings = self.get_settings()
         width = game_of_life_settings['width']
         height = game_of_life_settings['height']
         initial_amount_of_ebola_cells = game_of_life_settings['threshold_values']['initial-number-of-ebola-cells']
-        grid = generate_game_field(width, height, Cell, initial_amount_of_ebola_cells)
-        grid = Grid(grid, 1,life_symbol = game_of_life_settings['life_symbol'],
-                    death_symbol = game_of_life_settings['death_symbol'])
+        initial_population = game_of_life_settings['threshold_values']["number_of_cells"]
+        grid = generate_game_field_with_givenN(width, height, Cell,
+                                               initial_population, initial_amount_of_ebola_cells)
+        grid = Grid(grid, 1, life_symbol=game_of_life_settings['life_symbol'],
+                    death_symbol=game_of_life_settings['death_symbol'])
 
         # RULES CREATION
         self.set_rules(Rules(grid, game_of_life_settings['threshold_values']))
@@ -93,7 +95,7 @@ class Game:
         grid = self.get_grid()
 
         while condition:
-            self.get_data_collector()
+
             data_collector.update_data()
             # Formatting Data
             #data_string = data_collector.get_formatted_SIR_string() if self.ebola_condition else data_collector.get_formatted_data_string()

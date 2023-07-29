@@ -1,34 +1,21 @@
 
 let canvas = document.getElementById('gameCanvas');
-
 var settings;
-
-resizeCanvasToDisplaySize(canvas);
-
 let ctx = canvas.getContext('2d');
-
-
 let CELLS = [];
-
 let incomingDataChart;
-let chartData = {time: [], s: [], i: [], r: []};
+let chartData = {time: [], s: [], i: [], r: [], d: [], dc: [], p: []};
 let graphData = {time: [], adjacency: []}
+var updateInterval;
 
-function resizeCanvasToDisplaySize(canvas) {
-    // look up the size the canvas is being displayed
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
- 
-    // If it's resolution does not match change it
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width;
-      canvas.height = height;
-      return true;
-    }
- 
-    return false;
- }
+let dataElementsIds = {
+    textContent: ["susceptible", "infectious", "recovered", "totalPopulation"],
 
+}
+
+let dataElements = {
+    textContent: dataElementsIds.textContent.reduce((o, key) => Object.assign(o, {[key]: document.getElementById(key)}), {})
+}
 
 
 function createCell(x, y, color, width=2, height=2){
@@ -43,13 +30,14 @@ function createCell(x, y, color, width=2, height=2){
 }
 
 
-function parentWidth(elem) {
-    return 0.9*elem.parentElement.clientWidth;
+function parentWidth(elem, coeff=0.9) {
+    return coeff*elem.parentElement.clientWidth;
 }
 
-function parentHeight(elem) {
-    return elem.parentElement.clientHeight;
+function parentHeight(elem, coeff=1) {
+    return coeff*elem.parentElement.clientHeight;
 }
+
 
 function draw(thisIterationCells) {
     let drawBool = false;
@@ -95,37 +83,6 @@ function getCellsInfo(){
     return cellsInfo;
 }
 
-async function createCells(){
-    
-    let canvasWidth = 5
-    let canvasHeight = 4;
-    let cellsInfo;
-    let insideCells = [];
-    CELLS = [];
-    let response = fetch("/get_cells")
-                    .then(async r => {
-                        cellsInfo = await r.json();
-                        if (!r.ok){
-                            console.error(cellsInfo);
-                            clearInterval(updateInterval);
-                            return;
-                        }
-                    })
-                    .then(r => {
-                        if (cellsInfo.length > 0){
-                            cellsInfo.forEach(cellInfo => {
-                                let x = cellInfo.position[0]*canvasWidth;
-                                let y = cellInfo.position[1]*canvasHeight;
-                                color = cellInfo.ebola? "rgba(255, 99, 132, 1)": "rgba(255, 206, 86, 1)";
-                                CELLS.push(createCell(x, y, color));
-                                insideCells.push(createCell(x, y, color));
-                            })
-                        }
-                    }).catch(console.log);
-    return insideCells;
-}
-
-
 async function updateField(){
     let cellsInfo;
     let response = fetch("/get_cells")
@@ -153,9 +110,8 @@ async function updateField(){
     return;
 } 
 
-
-async function queryTaskStatus(){
-    updateField().then(updateNumbers).then(x => incomingDataChart.update())
+async function updateData(){
+    updateField().then(updateNumbers).then(incomingDataChart.update())
 }
 
 async function checkTaskCompletion(){
@@ -163,7 +119,7 @@ async function checkTaskCompletion(){
                     .then(async r => {
                         let jsonMessage = await r.json()
                         if (!r.ok){
-                            queryTaskStatus();
+                            updateData();
                             console.error(jsonMessage);
                             clearInterval(updateInterval);
                             return;
@@ -174,18 +130,16 @@ async function checkTaskCompletion(){
 
 // Function to update the game state (you can handle player movement and other updates here)
 async function update() {
-    
-    queryTaskStatus().then(checkTaskCompletion).catch(console.error);
-    
+    updateData().then(checkTaskCompletion).catch(console.error);
 }
 
 async function startSimulation(){
-    chartData = {time: [], s: [], i: [], r: []};
-    renderChart();
+    chartData  = {time: [], s: [], i: [], r: [], d: [], dc: [], p: []};   // Reset chartData
+    renderChart();                                  // Create a new chart 
     fetch("/start_simulation");
 }
 
-function getData(){
+function getSettings(){
     let initialInfectedNumber = document.getElementById("initialInfectedNumber").value;
     let totalNumberOfCells = document.getElementById("totalNumberOfCells").value;
     let ebolaSwitch = document.getElementById("ebolaSwtich").checked;
@@ -212,30 +166,34 @@ function getData(){
     return data
 }
 
-async function sendSettings(){
-    settings = getData()
-    requestOptions = {
-        method: "POST", 
+async function sendData(data, endpointRoute, method="POST"){
+    let requestOptions = {
+        method: method, 
         headers: {
           "Content-Type": "application/json"
          
         },
-        body: JSON.stringify(settings), 
+        body: JSON.stringify(data), 
       };
-    let response = fetch("/set_settings", requestOptions);
+    let response = fetch(endpointRoute, requestOptions);
+    return response;
+}
+
+async function sendSettings(){
+    settings = getSettings();
+    let endpointRoute = "/set_settings";
+    let response = sendData(settings, endpointRoute);
     return response
 }
 
 
-var updateInterval;
 async function simulate(){
-    cells = [];
     sendSettings()
         .then(async r => {
             if (!r.ok){
                 clearInterval(updateInterval);
                 console.error(r);
-                return ;
+                return;
             }
         })
         .then(startSimulation)
@@ -244,14 +202,33 @@ async function simulate(){
 
 }
 
+function updateElementTextContent(el, textContent){
+    el.textContent = textContent;
+    return el;
+}
+
+function pushDataToDataChart(variable, data){
+    chartData[variable].push(data);
+    return chartData;
+}
+
+function pushDataToGraphData(time, adjacency){
+    graphData.time.push(time);
+    graphData.adjacency.push(adjacency);
+    return graphData;
+}
+
+function updateCycleCounter(cycleNumber){
+    let timeT = document.getElementById("timeT");
+    timeT.max = cycleNumber;
+    timeT.value = cycleNumber;      // might be turned off
+    return timeT;
+}
+
 async function updateNumbers(){
     let data;
-    let susceptible = document.getElementById("susceptible");
-    let infectious = document.getElementById("infectious");
-    let recovered = document.getElementById("recovered");
-    let population = document.getElementById("totalPopulation");
-    let timeT = document.getElementById("timeT");
     let jsonResponse;
+
     await fetch("/get_stats")
         .then(async response => {
             jsonResponse = await response.json();
@@ -260,21 +237,30 @@ async function updateNumbers(){
                 clearInterval(updateInterval);
                 return;
             }
+            
             data = jsonResponse;
-            jsonResponse = jsonResponse.stats;
-            susceptible.textContent = jsonResponse[1];
-            infectious.textContent = jsonResponse[2];
-            recovered.textContent = jsonResponse[3];
-            population.textContent = jsonResponse[4];
-            chartData.time.push(jsonResponse[0]);
-            chartData.i.push(jsonResponse[2]);
-            chartData.r.push(jsonResponse[3]);
-            chartData.s.push(jsonResponse[1]);
-            graphData.time.push(jsonResponse[0]);
-            graphData.adjacency.push(data.graph_data);
-            timeT.max = graphData.adjacency.length-1;
-            timeT.value = graphData.adjacency.length-1;
-            getCycleNumber(timeT.value);
+            let [time, susceptibleValue, infectiousValue, recoverValue, populationValue, d, dc, p] = data.stats;
+            let adjacencyData = data.graph_data;
+            
+            updateElementTextContent(dataElements.textContent.susceptible, susceptibleValue);
+            updateElementTextContent(dataElements.textContent.infectious, infectiousValue);
+            updateElementTextContent(dataElements.textContent.recovered, recoverValue);
+            updateElementTextContent(dataElements.textContent.totalPopulation, populationValue);
+            
+            pushDataToDataChart("time", time);
+            pushDataToDataChart("i", infectiousValue);
+            pushDataToDataChart("r", recoverValue);
+            pushDataToDataChart("s", susceptibleValue);
+            
+            pushDataToDataChart("d", d);
+            pushDataToDataChart("dc", dc);
+            pushDataToDataChart("p", p);
+
+            pushDataToGraphData(time, adjacencyData);
+        
+            let cycleNumber = adjacencyData.length - 1;
+            updateCycleCounter(cycleNumber);
+            getCycleNumber();
         });
     incomingDataChart.update();
     return data;
