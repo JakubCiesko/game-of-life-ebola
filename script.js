@@ -198,6 +198,7 @@ async function simulate(){
         })
         .then(startSimulation)
         .then(renderChart);
+        clearInterval(updateInterval);
         updateInterval = setInterval(update, 500);
 
 }
