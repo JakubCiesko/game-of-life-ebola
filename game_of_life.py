@@ -20,6 +20,7 @@ while game:
         'death_symbol': dead_cell_symbol,
         'replay_key': 'x',
         'time_delay': time_delay,
+<<<<<<< HEAD
         'file_path': './',
         'threshold_values': {'underpopulation': 2,
                             'survive': 4,
@@ -29,6 +30,18 @@ while game:
                              'ebola-life': 20,
                              'ebola-infection': 15,
                              'initial-number-of-ebola-cells': 10
+=======
+        'file_path': 'C:/Users/Asus/Desktop/pandemic.txt',
+        'threshold_values': {
+            'underpopulation': 2,
+            'survive': 4,
+            'overpopulation': 3,
+            'revive': 3,
+            'ebola': False,
+            'ebola-life': 20,
+            'ebola-infection': 15,
+            'initial-number-of-ebola-cells': 10
+>>>>>>> 6a97402565b27e27568495e93553b33b68486bdf
                             }
     }
 
@@ -43,7 +56,7 @@ while game:
                 death_symbol = game_of_life_settings['death_symbol'])
 
     # RULES CREATION
-    rules = Rules(grid,game_of_life_settings['threshold_values'])
+    rules = Rules(grid, game_of_life_settings['threshold_values'])
 
     # DataCollector
     data_collector = DataCollector(grid)
@@ -61,6 +74,8 @@ while game:
         print(grid)
         # Collecting Data
         data_collector.update_data()
+        print(grid.get_all_live_cells())
+        print(data_collector.get_graph_data())
         # Formatting Data
         data_string = data_collector.get_formatted_SIR_string() if ebola_condition \
             else data_collector.get_formatted_data_string()

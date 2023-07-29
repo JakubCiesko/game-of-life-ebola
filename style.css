@@ -1,0 +1,11 @@
+
+body {
+    background-color: #f8f9fa; /* Light gray background color for the body */
+    color: #343a40; /* Dark gray text color */
+    padding-top: 30px; /* Add some space at the top */
+    }
+    
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Life with Disease</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+    <script src="static/graphs.js"></script>
+</head>
+<body>
+    <div class="container" id="siteContainer" style="opacity: 1;">
+        
+        <div class="chart-container shadow p-3 mb-5 bg-white rounded">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="header">
+                        <h1 class="display-1">Game of Life with Disease</h1>
+                        <p class="lead">A cellular automaton where cells contract disease, are infectious, and die.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 shadow-sm p-3 mb-5 bg-white rounded">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total population</h5>
+                            <p class="card-text"><span id="totalPopulation"></span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Infectious</h5>
+                            <p class="card-text"><span id="infectious"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center shadow-sm p-3 mb-5 bg-white rounded">
+                    <canvas id="gameCanvas" width="100" height="100"></canvas>
+                </div>
+                <div class="col-md-3 shadow-sm p-3 mb-5 bg-white rounded">
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Susceptible</h5>
+                            <p class="card-text"><span id="susceptible"></span></p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Recovered</h5>
+                            <p class="card-text"><span id="recovered"></span></p>
+                        </div>
+                    </div>
+                 
+                </div>
+            </div>
+        </div>
+        <div class="chart-container shadow p-3 mb-5 bg-white rounded">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-12 text-center shadow-sm p-3 mb-5 bg-white rounded">
+                    <canvas id="dataChart" width="200" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <p><button type="button" class="btn btn-primary btn-lg" id="simulationButton" onclick="simulate()">Start Simulation</button></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 text-center">
+                    <p>
+                    <button class="btn btn-primary btn-lg" type="button" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="false" aria-controls="collapseExample">
+                        Settings
+                    </button>
+                    </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="collapse" id="collapseSettings">
+                    <div class="card shadow p-3 mb-5 bg-white rounded">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs nav-fill flex-column flex-sm-row card-header-tabs">
+                            <li class="nav-item">
+                              <a class="nav-link active" data-bs-toggle="tab" href="#gridSettingsTab">Grid Settings</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-bs-toggle="tab" href="#rulesTab">Rules</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#ebolaTab">Ebola Rules</a>
+                            </li>
+                            </ul>
+                          </div>
+                        <div class="card-body ">
+                          <div class="tab-content">
+                            <div class="tab-pane fade show active" id="gridSettingsTab">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="initialInfectedNumberPrepend">Initial number of Infected cells</span>
+                                    </div>
+                                    <input id="initialInfectedNumber" type="number" class="form-control" aria-label="Default" aria-describedby="initialInfectedNumberPrepend" min="1" value="50">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="totalNumberOfCellsPrepend">Total Number of Cells</span>
+                                    </div>
+                                    <input id="totalNumberOfCells" type="number" class="form-control" aria-label="Default" aria-describedby="totalNumberOfCellsPrepend" min="10" max="10000" value="1000">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="widthPrepend">Width</span>
+                                    </div>
+                                    <input id="width" type="number" class="form-control" aria-label="Default" aria-describedby="widthPrepend" min="10" max="200" value="50">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="heightPrepend">Height</span>
+                                    </div>
+                                    <input id="height" type="number" class="form-control" aria-label="Default" aria-describedby="heightPrepend" min="10" max="200" value="50">
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="rulesTab">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="survivePrepend">Survive</span>
+                                    </div>
+                                    <input id="survive" type="number" class="form-control" aria-label="Default" aria-describedby="survivePrepend" min="1" max="5" value="4">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="underPopulationPrepend">Underpopulation</span>
+                                    </div>
+                                    <input id="underPopulation" type="number" class="form-control" aria-label="Default" aria-describedby="underPopulationPrepend" min="1" max="5" value="2">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="overPopulationPrepend">Overpopulation</span>
+                                    </div>
+                                    <input id="overPopulation" type="number" class="form-control" aria-label="Default" aria-describedby="overPopulationPrepend" min="1" max="5" value="3">
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="ebolaTab">
+
+                                <div class="input-group mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="ebolaSwtich" checked>
+                                        <label class="form-check-label" for="ebolaSwtich">Activate Disease</label>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="ebolaLifePrepend">Number of disease life cycles</span>
+                                    </div>
+                                    <input id="ebolaLife" type="number" class="form-control" aria-label="Default" aria-describedby="ebolaLifePrepend" min="1" max="100" value="30">
+                                </div>
+
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                    <span class="input-group-text" id="ebolaInfectionPrepend">Number of cycles to become infected</span>
+                                    </div>
+                                    <input id="ebolaInfection" type="number" class="form-control" aria-label="Default" aria-describedby="ebolaInfectionPrepend" min="1" max="50" value="14">
+                                </div>
+
+                            </div>
+                        </div>
+                            
+                        <br>
+                        <hr>
+
+                        <div class="row text-center">
+                            <div class="col-md-12">
+                                <p><button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#graphModal">Show Graph</button></p>
+                            </div>                                  
+                        </div>
+                        </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                
+                
+            </div>
+        </div>
+    </div>
+            
+   
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top text-center">
+        <p class="col-md-12 mb-0 text-muted">© 2023 Jakub Ciesko</p>
+    </footer>
+    
+
+    <script src="static/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.25.0/cytoscape.min.js" integrity="sha512-QWYhhlZXfhMzyiML+xSFHYINwLvLsVd2Ex6QKA4JQzulKAsXiHoNXN1gCgB7GUaVL8xGI9L6XXyqPJVLASVP7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h5 class="modal-title display-4" id="graphModalLabel">Graph</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>    
+                </div>
+
+                <div class="modal-body">
+
+                    <div id="cy" class="shadow-sm p-3 mb-5 bg-white rounded" style="border: 1px solid #ccc; height: 80vh; width: 80w;"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="timeTPrepend">Cycle number</span>
+                                </div>
+                                <input id="timeT" type="number" class="form-control" aria-label="Default" aria-describedby="timeTPrepend" min="0" onchange="getCycleNumber()">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">Actual cycle number:</span>
+                                    <span class="input-group-text" id="timeReal"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="graphButton" onclick="displayGraph()">Display graph</button>
+                    <button type="button" class="btn btn-secondary" id="hideGraphButton" onclick="hideGraph()">Hide Graph</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+</body>
+</html>
